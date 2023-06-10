@@ -1,0 +1,31 @@
+{
+  "name": "wakecraft",
+  "version": "0.0.1",
+  "description": "A Minecraft proxy to automatically start your server when someone tries to join, and shut it down when no one is online.",
+  "author": "X_Shadow_ <contact@xshadow.xyz>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowdevfr/wakecraft.git"
+  },
+  "keywords": [
+    "minecraft",
+    "proxy",
+    "hibernation"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "start": "node .",
+    "prepare": "tsc",
+    "build": "tsc"
+  },
+  "bin": "./lib/index.js",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "mcproto": "^0.7.13"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.35",
+    "typescript": "^3.8.3"
+  }
+}

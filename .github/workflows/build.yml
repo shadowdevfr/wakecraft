@@ -1,0 +1,49 @@
+on:
+  workflow_dispatch:
+  milestone:
+    types: [closed]
+  push:
+    branches:
+      - main
+jobs:
+  Android:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GH_TOKEN }}
+    
+    - name: ⚡ Setup Node.js environment
+      uses: actions/setup-node@v3.6.0
+      with:
+        node-version: 18.x
+
+    - name: 📥 Check or create cache for dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-npm-cache-
+
+    - name: 🧩 Install dependencies
+      run: npm ci
+
+    - name: 🧩 Install pkg
+      run: npm i -g pkg
+        
+    - name: ⚙️ Setup git
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+              
+    - name: 📦 Compile TypeScript
+      uses: icrawl/action-tsc@v1
+    
+    - name: 📦 Compile binaries
+      run: pkg --out-path dist .
+    
+    - name: 📬 Create GitHub release
+      run: gh release create v$(npm pkg get version | sed 's/"//g')-$(git rev-parse HEAD | sed 's/.//9g') ${{ github.workspace }}/dist/* --generate-notes
+      env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
