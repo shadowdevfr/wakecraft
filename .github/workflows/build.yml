@@ -46,4 +46,4 @@ jobs:
     - name: 📬 Create GitHub release
       run: gh release create v$(npm pkg get version | sed 's/"//g')-$(git rev-parse HEAD | sed 's/.//9g') ${{ github.workspace }}/dist/* --generate-notes --prerelease
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
