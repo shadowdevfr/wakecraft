@@ -63,7 +63,7 @@ new Server(async client => {
             status = "starting";
 
             serverProcess.stdout?.on('data', (data) => {
-                console.log(data, {end:''});
+                console.log(data);
                 if (data.toLowerCase().includes('done')) {
                     console.log('Server is now online!');
                     status = "online";
