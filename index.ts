@@ -38,7 +38,7 @@ setInterval(async () => {
     } else {
         lastpackets = packets;
     }
-}, 10000);
+}, 300000);
 
 new Server(async client => {
     const remoteAddr = client.socket.remoteAddress!.replace("::ffff:", "")
