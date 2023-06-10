@@ -21,7 +21,7 @@ let lastpackets = 0;
 let serverProcess: ChildProcess;
 
 setInterval(async () => {
-    if (packets === 0) return;
+    if (status === "online") return;
     if (lastpackets == packets) {
         console.log("No new activity on the server for 5 minutes, stopping server.");
         packets = 0;
