@@ -87,12 +87,12 @@ new Server(async client => {
                 if (packet.id == 0x0) client.send(new PacketWriter(0x0).writeJSON({
                     version: { name: "§6• §eStarting...", protocol: -1 },
                     players: { max: -1, online: -1 },
-                    description: { text: "§eThis server is starting.\n§7Please wait a few minutes. Refresh the server list or join." }
+                    description: { text: "§eThis server is starting.\n§7Please wait a few minutes. Refresh!" }
                 }))
                 if (packet.id == 0x1) client.send(new PacketWriter(0x1).write(packet.read(8)))
             })
         } else if (client.state == State.Login) {
-            client.end(new PacketWriter(0x0).writeJSON({text: 'Server is now starting! Please wait a few minutes and join again.', color:'green'}));
+            client.end(new PacketWriter(0x0).writeJSON({text: 'This server is already starting!', color:'green'}));
         }
         return setTimeout(() => client.end(), 1000);
     } else if (status == "online") {
