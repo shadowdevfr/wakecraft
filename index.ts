@@ -3,7 +3,18 @@ import { Client, Server, PacketWriter, State, Connection } from "mcproto"
 import { ChildProcess, exec, spawn } from "child_process"
 type Status = "online" | "offline" | "starting";
 
-let port = 25565
+const args = process.argv.slice(2);
+
+// args[0] = port
+// args[1] = server directory
+// args[2] = command to start server
+
+if (args.length !== 3) {
+    console.log('Usage: wakecraft <port> <server directory> "<command to start server>"');
+    process.exit(1);
+}
+
+let port = Number(args[0]);
 let status: Status = "offline";
 let packets = 0;
 let lastpackets = 0;
@@ -38,7 +49,6 @@ new Server(async client => {
     
     if (status == "offline") {
         if (client.state == State.Status) {
-            console.log(protocol, address, remoteAddr)
             client.on("packet", packet => {
                 if (packet.id == 0x0) client.send(new PacketWriter(0x0).writeJSON({
                     version: { name: "§4• §cOffline", protocol: -1 },
@@ -49,7 +59,7 @@ new Server(async client => {
             })
         } else if (client.state == State.Login) {
             client.end(new PacketWriter(0x0).writeJSON({text: 'Server is now starting! Please wait a few minutes and join again.', color:'green'}));
-            serverProcess = exec('java -jar server.jar', {cwd: './server'});
+            serverProcess = exec(args[2], {cwd: args[1]});
             status = "starting";
 
             serverProcess.stdout?.on('data', (data) => {
@@ -89,8 +99,8 @@ new Server(async client => {
         client.pause();
 
         // Reverse proxy
-        const host = "localhost";
-        const port = 30015;
+        const host = "127.0.0.1";
+        const port = 25566;
         let conn: Client
         try {
             conn = await Client.connect(host, port)

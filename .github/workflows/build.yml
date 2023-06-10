@@ -44,6 +44,6 @@ jobs:
       run: pkg --out-path dist .
     
     - name: 📬 Create GitHub release
-      run: gh release create v$(npm pkg get version | sed 's/"//g')-$(git rev-parse HEAD | sed 's/.//9g') ${{ github.workspace }}/dist/* --generate-notes
+      run: gh release create v$(npm pkg get version | sed 's/"//g')-$(git rev-parse HEAD | sed 's/.//9g') ${{ github.workspace }}/dist/* --generate-notes --prerelease
       env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
