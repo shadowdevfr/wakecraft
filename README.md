@@ -5,10 +5,5 @@ A Minecraft proxy that will automatically start your server when someone joins, 
 ## How to use it
 Do not use it in production, it's not ready yet.
 1. Download the binary for your platform from the [releases page](https://github.com/shadowdevfr/wakecraft/releases/)
-2. Run it with `./wakecraft <port> <your mc server directory> "<start command>"`
-3. Make sure your other server is running on port 25566. (Might be configurable in the future)
-4. For example, if my Minecraft server is in directory "server" and I start it with "java -jar server.jar", I will run `./wakecraft 25565 server "java -jar server.jar"`. The proxy will then listen to connections on port 25565 and start the server when someone connects.
-   
-## What doesn't work yet
-- [ ] You cannot send commands to the mc server yet
-- [ ] You cannot change the port of the mc server yet
+2. Run it with `./wakecraft <port> <your mc server directory> <your mc server port> "<start command>"`
+3. For example, if my Minecraft server is in directory "server" and I start it with "java -jar server.jar", I will run `./wakecraft 25565 ./server 25566 "java -jar server.jar"`. The proxy will then listen to connections on port 25565 and start the server when someone connects.

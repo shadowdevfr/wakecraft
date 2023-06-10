@@ -7,46 +7,44 @@ const args = process.argv.slice(2);
 
 // args[0] = port
 // args[1] = server directory
-// args[2] = command to start server
+// args[2] = mc server port
+// args[3] = command to start server
+// args[4] = -d Show debug information (optional)
 
-if (args.length !== 3) {
-    console.log('Usage: wakecraft <port> <server directory> "<command to start server>"');
+if (args.length < 4) {
+    console.log('Usage: wakecraft <port> <server directory> <mc server port> "<command to start server>" [-d]');
     process.exit(1);
 }
 
 let port = Number(args[0]);
 let status: Status = "offline";
-let packets = 0;
-let lastpackets = 0;
+let lastPacket = new Date().getTime();
 let serverProcess: ChildProcess;
 
 setInterval(async () => {
-    if (status === "online") return;
-    if (lastpackets == packets) {
+    if (status !== "online") return;
+    if (new Date().getTime() - lastPacket > 300000) {
         console.log("No new activity on the server for 5 minutes, stopping server.");
-        packets = 0;
-        lastpackets = 0;
+        lastPacket = new Date().getTime();
         status = "offline";
-        serverProcess.stdin?.write("save-all\n")
-        serverProcess.stdin?.write("stop\n")
+        serverProcess.stdin?.write("save-all\n");
+        serverProcess.stdin?.write("stop\n");
         // Wait for server to stop, if it doesn't, kill it.
         await new Promise(resolve => setTimeout(resolve, 60000));
         if (status !== "offline") {
             serverProcess.kill();
             console.log("Server did not stop, killing it.")
         }
-    } else {
-        lastpackets = packets;
     }
-}, 300000);
+}, 1000);
 
 new Server(async client => {
-    const remoteAddr = client.socket.remoteAddress!.replace("::ffff:", "")
+    const remoteAddr = client.socket.remoteAddress!.replace("::ffff:", "");
 
-    const handshake = await client.nextPacket()
-    const protocol = handshake.readVarInt()
-    const address = handshake.readString().split("\x00")[0]
-    
+    const handshake = await client.nextPacket();
+    const protocol = handshake.readVarInt();
+    const address = handshake.readString().split("\x00")[0];
+
     if (status == "offline") {
         if (client.state == State.Status) {
             client.on("packet", packet => {
@@ -59,7 +57,7 @@ new Server(async client => {
             })
         } else if (client.state == State.Login) {
             client.end(new PacketWriter(0x0).writeJSON({text: 'Server is now starting! Please wait a few minutes and join again.', color:'green'}));
-            serverProcess = exec(args[2], {cwd: args[1]});
+            serverProcess = exec(args[3], {cwd: args[1]});
             status = "starting";
 
             serverProcess.stdout?.on('data', (data) => {
@@ -76,6 +74,9 @@ new Server(async client => {
                 console.log(`Server process exited with code ${code}`);
                 status = "offline";
             });
+
+            // @ts-ignore
+            process.stdin.pipe(serverProcess.stdin);
 
             await new Promise(resolve => setTimeout(resolve, 60000));
             if (status == "starting") status = "online"; // If the server is still starting after a minute, assume it's online & start proxying
@@ -100,7 +101,7 @@ new Server(async client => {
 
         // Reverse proxy
         const host = "127.0.0.1";
-        const port = 25566;
+        const port = Number(args[2]);
         let conn: Client
         try {
             conn = await Client.connect(host, port)
@@ -128,7 +129,7 @@ new Server(async client => {
         conn.socket.on('data', (data) => {
             // Keep only the packets that are not status packets
             if (data.length !== 10 && !data.toString().includes("version")) {
-                packets++;
+                lastPacket = new Date().getTime();
             }
         });
     }

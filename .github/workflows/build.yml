@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: ⚡ Setup Node.js environment
       uses: actions/setup-node@v3.6.0
@@ -46,4 +46,4 @@ jobs:
     - name: 📬 Create GitHub release
       run: gh release create v$(npm pkg get version | sed 's/"//g')-$(git rev-parse HEAD | sed 's/.//9g') ${{ github.workspace }}/dist/* --generate-notes --prerelease
       env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
